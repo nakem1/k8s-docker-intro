@@ -1,0 +1,49 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: service-influxdb
+spec:
+  type: ClusterIP
+  selector:
+    app: influxdbPod
+  ports:
+      - port: 8086
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: influxdb
+spec:
+  template:
+    metadata:
+      name: influxdb-pod
+      labels:
+        app: influxdbPod
+        type: influxdbtype
+    spec:
+      containers: 
+        - name: influxdbcontainer
+          image: influxdb_image
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 8086
+          volumeMounts:
+            - mountPath: "/var/lib/influxdb"
+              name: influxdb
+          livenessProbe:
+            exec:
+              command:
+                - sh
+                - /srcs/utils.sh
+            initialDelaySeconds: 30
+            periodSeconds: 10
+      volumes:
+        - name: influxdb
+          hostPath:
+            path: /mnt/influxdb
+            type: Directory
+  replicas: 1
+  selector:
+    matchLabels:
+      app: influxdbPod
+      type: influxdbtype
