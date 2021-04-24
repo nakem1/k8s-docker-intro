@@ -1,6 +1,7 @@
 minikube stop
 minikube delete
-minikube start --driver=virtualbox --cpus=4 --memory=4G
+minikube start --vm-driver=virtualbox --cpus=4 --memory=4G --disk-size=50G
+
 eval $(minikube -p minikube docker-env)
 #minikube ssh 'sudo mkdir /mnt/mysql; sudo chmod 777 /mnt/mysql '
 minikube ssh 'sudo mkdir /mnt/influxdb; sudo chmod 777 /mnt/influxdb '
@@ -12,7 +13,7 @@ minikube addons enable dashboard
 minikube addons enable metallb
 
 kubectl apply -f metallb.yaml
-#
+
 docker build -t nginx_image ./srcs/nginx/
 kubectl apply -f srcs/nginx/nginx.yaml
 
@@ -34,6 +35,6 @@ kubectl apply -f srcs/grafana/grafana.yaml
 docker build -t ftps_image ./srcs/ftps/
 kubectl apply -f srcs/ftps/ftps.yaml
 #
-##ssh-keygen -R 192.168.99.115
+#ssh-keygen -R 192.168.99.115
 #
 minikube dashboard &

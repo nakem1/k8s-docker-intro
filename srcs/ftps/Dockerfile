@@ -1,19 +1,20 @@
-FROM alpine:3.12
+FROM	alpine:3.12
 
-ENV ip=192.168.99.115
+RUN		apk update
+RUN		apk add --no-cache vsftpd supervisor openssl
+RUN		apk add telegraf --repository http://dl-cdn.alpinelinux.org/alpine/edge/community/ --allow-untrusted
 
-EXPOSE 21 21000
+COPY	/srcs/ srcs
+RUN		mkdir -p /etc/telegraf/
+RUN		mv ./srcs/telegraf.conf		/etc/telegraf/
+RUN		mv ./srcs/supervisord.conf	/etc/
+RUN		mv ./srcs/vsftpd.conf		/etc/
 
-RUN echo "http://dl-2.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
-RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories
+RUN		openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -days 365 -subj '/CN=localhost' -nodes
 
-RUN apk update
-RUN apk add pure-ftpd openssl
-RUN adduser -D admin && echo admin:admin | chpasswd
-RUN mkdir -p ftps/admin
-RUN apk add telegraf openrc && openrc && touch /run/openrc/softlevel
-COPY /srcs/ srcs
-RUN openssl req -newkey rsa:2048 -x509 -sha256 -days 90 -nodes -out /etc/ssl/private/pure-ftpd.pem -keyout /etc/ssl/private/pure-ftpd.pem -subj "/C=RU/ST=Tatarstan/L=Kazan/O=21school/OU=lmurray/CN=ft_server"
-RUN chmod 600 /etc/ssl/private/pure-ftpd.pem
-RUN mv srcs/telegraf.conf /etc/
-ENTRYPOINT sh srcs/ftps.sh
+RUN		mkdir /var/nakem
+RUN		adduser -D nakem && echo "nakem:mekan" | chpasswd
+RUN		chmod 777 /var/nakem
+
+EXPOSE	21 21000
+CMD		["/usr/bin/supervisord"]

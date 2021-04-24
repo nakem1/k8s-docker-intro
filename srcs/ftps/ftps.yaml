@@ -1,51 +1,46 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: service-ftps
+  name: ftps-service
   annotations:
     metallb.universe.tf/allow-shared-ip: shared
+  labels:
+    app: ftps
 spec:
   type: LoadBalancer
-  ports:
-  - name: port21
-    port: 21
-    targetPort: 21
-  - name: port21000
-    port: 21000
-    targetPort: 21000
+    #  loadBalancerIP: 192.168.99.115
   selector:
-    app: ftpsPod
+    app: ftps
+  ports:
+    - protocol: TCP
+      port: 21
+      targetPort: 21
+      name: ftps
+    - protocol: TCP
+      port: 21000
+      targetPort: 21000
+      name: ftp-passive
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: ftps-deployment
 spec:
-  replicas: 1
   selector:
     matchLabels:
-      app: ftpsPod
-      type: ftps
+      app: ftps
+  replicas: 1
   template:
     metadata:
-      name: ftps-pod
       labels:
-        app: ftpsPod
-        type: ftps
+        app: ftps
     spec:
-      containers: 
-        - name: ftpscontainer
-          image: ftps_image
-          imagePullPolicy: Never
-          ports:
-            - name: port21
-              containerPort: 21
-            - name: port21000
-              containerPort: 21000
-          livenessProbe:
-            exec:
-              command:
-                - sh
-                - /srcs/utils.sh
-            initialDelaySeconds: 30
-            periodSeconds: 10
+      containers:
+      - name: ftps
+        image: ftps_image
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 21
+          name: ftps
+        - containerPort: 21000
+          name: ftp-passive
