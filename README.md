@@ -67,3 +67,7 @@ Grafana is monitoring all the containers. There'are one dashboard per service.
 * IP: 192.168.99.115:3000
 
 * Login: admin/admin
+
+## Dashboard
+![Dashboard view](/dashboard.png)
+
