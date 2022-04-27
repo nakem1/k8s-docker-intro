@@ -68,6 +68,8 @@ Grafana is monitoring all the containers. There'are one dashboard per service.
 
 * Login: admin/admin
 
+## Schema
+![Schema](/schema.png)
+
 ## Dashboard
 ![Dashboard view](/dashboard.png)
-
